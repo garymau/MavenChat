@@ -2,9 +2,11 @@ package servlet;
 
 import connection.DatabaseConnection;
 import database.*;
+import ext.History;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xml.sax.SAXException;
 import requests.BaseRequest;
 import requests.UpdateRequest;
 
@@ -17,6 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.logging.Level;
@@ -27,18 +30,24 @@ import java.util.logging.Logger;
 public class Servlet extends HttpServlet {
     protected static Connection connection = null;
     private static final Logger logger = Logger.getLogger(Servlet.class.getName());
+    private static final String lineStart = "\n++++++++++++++++++++\n";
+    private static final String lineEnd = "\n--------------------\n";
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         try {
-
             LogManager.getLogManager().readConfiguration(
                     getClass().getResourceAsStream("/logging.properties")
             );
             connection = DatabaseConnection.setupDBConnection();
+            File xmlFile = new File(getServletContext().getRealPath("/")+"/history.xml");
+            if (xmlFile.exists())
+                History.fromXML(xmlFile);
         } catch (IOException e) {
-            System.out.println("!!!!!!!Could not setup logging config " + e.toString());
+            logger.log(Level.CONFIG, lineStart + "!!!!!!!Could not setup logging config " + e.toString() + lineEnd);
+        } catch (ParserConfigurationException | SAXException e) {
+            logger.log(Level.INFO, lineStart + "couldn't parse your xml doc, sorry" + e.getCause()+ lineEnd);
         }
 
     }
@@ -65,11 +74,10 @@ public class Servlet extends HttpServlet {
                     UsersTable.changeUsernameById(userId, username, connection);
                 }
             } catch (ParseException e) {
-                logger.log(Level.INFO,"ParseException\n" + e.getMessage()+"\n");
-
+                logger.log(Level.INFO, lineStart + "ParseException" + e.getMessage() + lineEnd);
             }
         } catch (IOException e) {
-            logger.log(Level.INFO, "IOException\n" + e.getMessage() + "\n");
+            logger.log(Level.INFO, lineStart + "IOException" + e.getMessage() + lineEnd);
         }
     }
 
@@ -88,13 +96,14 @@ public class Servlet extends HttpServlet {
             try {
                 UpdateRequest.proceedUpdateRequest(request, response, connection);
             } catch (TransformerException | ParserConfigurationException e) {
-                logger.log(Level.INFO, "TransformerException\n" + e.getMessage() + "\n");
+                logger.log(Level.INFO, lineStart + "TransformerException" + e.getMessage() + lineEnd);
             } catch (java.text.ParseException e) {
-                logger.log(Level.INFO, "ParseException\n" + e.getMessage() + "\n");
+                logger.log(Level.INFO, lineStart + "ParseException" + e.getMessage() + lineEnd);
             }
         }
         else {
-            System.out.println("Unsupported type.");
+            logger.log(Level.INFO, lineStart + "Unsupported type of request!" +
+                    " Expected: 'BASE_REQUEST' or 'GET_UPDATE' " + lineEnd);
         }
     }
 }

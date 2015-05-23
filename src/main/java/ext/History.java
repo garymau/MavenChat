@@ -1,31 +1,25 @@
 package ext;
 
-import com.sun.deploy.net.HttpRequest;
-import com.sun.xml.internal.bind.v2.TODO;
-import database.UsersTable;
-import jdk.nashorn.internal.parser.JSONParser;
-import jdk.nashorn.internal.runtime.JSONFunctions;
+import org.xml.sax.Attributes;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Logger;
 
 /**
  * Created by Diman on 16.05.2015.
@@ -76,11 +70,89 @@ public class History {
         transformer.transform(source, streamResult);
     }
 
-    public static synchronized void fromXML(File xmlFile) throws ParserConfigurationException, SAXException {
+    public static synchronized void fromXML(File xmlFile) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
 
-        DefaultHandler
+        DefaultHandler defaultHandler = new DefaultHandler(){
+
+            JSONObject message ;
+            boolean fmessage = false;
+            boolean fid = false;
+            boolean fusername = false;
+            boolean ftext = false;
+            boolean ftime = false;
+
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                super.startElement(uri, localName, qName, attributes);
+
+                if (qName.equalsIgnoreCase("message")){
+                    fmessage = true;
+                }
+
+                if (qName.equalsIgnoreCase("id")){
+                    fid = true;
+                }
+
+                if (qName.equalsIgnoreCase("username")){
+                    fusername = true;
+                }
+
+                if (qName.equalsIgnoreCase("text")){
+                    ftext = true;
+                }
+
+                if (qName.equalsIgnoreCase("time")){
+                    ftime = true;
+                }
+            }
+
+            @Override
+            public void endElement(String uri, String localName, String qName) throws SAXException {
+                super.endElement(uri, localName, qName);
+
+                if (qName.equalsIgnoreCase("message")){
+                    System.out.println("\n***message#"+message.toJSONString()+"***");
+                }
+            }
+
+            @Override
+            public void characters(char[] ch, int start, int length) throws SAXException {
+                super.characters(ch, start, length);
+
+                if (fmessage){
+                    message = new JSONObject();
+                }
+
+                if (fid){
+                    if (message==null)
+                        message = new JSONObject();
+                    message.put("messageid", new String(ch, start, length));
+                }
+
+                if (fusername){
+                    if (message==null)
+                        message = new JSONObject();
+                    message.put("username", new String(ch, start, length));
+                }
+
+                if (ftext){
+                    if (message==null)
+                        message = new JSONObject();
+                    message.put("messagetext", new String(ch, start, length));
+                }
+
+                if (ftime){
+                    if (message==null)
+                        message = new JSONObject();
+                    message.put("messagetime", new String(ch, start, length));
+                }
+            }
+        };
+
+        if (xmlFile!=null)
+            saxParser.parse(xmlFile,defaultHandler);
 
     }
 }
