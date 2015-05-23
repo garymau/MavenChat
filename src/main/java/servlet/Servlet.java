@@ -41,7 +41,7 @@ public class Servlet extends HttpServlet {
                     getClass().getResourceAsStream("/logging.properties")
             );
             connection = DatabaseConnection.setupDBConnection();
-            File xmlFile = new File(getServletContext().getRealPath("/")+"/history.xml");
+            File xmlFile = new File("/history.xml");
             if (xmlFile.exists())
                 History.fromXML(xmlFile);
         } catch (IOException e) {

@@ -113,7 +113,7 @@ public class History {
                 super.endElement(uri, localName, qName);
 
                 if (qName.equalsIgnoreCase("message")){
-                    System.out.println("\n***message#"+message.toJSONString()+"***");
+                    System.out.println("\n***message: "+message.toJSONString()+"***");
                 }
             }
 
@@ -123,30 +123,35 @@ public class History {
 
                 if (fmessage){
                     message = new JSONObject();
+                    fmessage = false;
                 }
 
                 if (fid){
                     if (message==null)
                         message = new JSONObject();
                     message.put("messageid", new String(ch, start, length));
+                    fid = false;
                 }
 
                 if (fusername){
                     if (message==null)
                         message = new JSONObject();
                     message.put("username", new String(ch, start, length));
+                    fusername = false;
                 }
 
                 if (ftext){
                     if (message==null)
                         message = new JSONObject();
                     message.put("messagetext", new String(ch, start, length));
+                    ftext = false;
                 }
 
                 if (ftime){
                     if (message==null)
                         message = new JSONObject();
                     message.put("messagetime", new String(ch, start, length));
+                    ftime = false;
                 }
             }
         };
