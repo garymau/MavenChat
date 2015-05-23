@@ -12,7 +12,7 @@ import java.sql.*;
 
 public class UsernameChangesTable {
     public static String getChangedUsers(int userChangeId, Connection connection){
-        String sql = "SELECT * from username_changes WHERE id > " + userChangeId;
+        final String sql = "SELECT * from username_changes WHERE id > " + userChangeId;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -33,7 +33,7 @@ public class UsernameChangesTable {
 
 
     public static void changeUsername(int userId, String username, Connection connection){
-        String sql = "INSERT INTO username_changes (id, username) VALUES (?, ?)";
+        final String sql = "INSERT INTO username_changes (id, username) VALUES (?, ?)";
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(sql);

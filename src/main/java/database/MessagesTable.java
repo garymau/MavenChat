@@ -12,7 +12,7 @@ import java.sql.*;
 
 public class MessagesTable {
     public static String getMessages(int messageId, Connection connection){
-        String sql = "SELECT * from messages WHERE message_id > " + messageId;
+        final String sql = "SELECT * from messages WHERE message_id > " + messageId;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -34,7 +34,7 @@ public class MessagesTable {
     }
 
     public static void changeMessageText(int messageId, String messageText, Connection connection) {
-        String sql = "UPDATE messages SET message_text='" + messageText + "' WHERE message_id=" + messageId;
+        final String sql = "UPDATE messages SET message_text='" + messageText + "' WHERE message_id=" + messageId;
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(sql);
@@ -60,7 +60,7 @@ public class MessagesTable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String sql = "INSERT INTO messages (message_text, username, message_time, message_id, is_deleted, user_id) VALUES (?, ?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO messages (message_text, username, message_time, message_id, is_deleted, user_id) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(sql);

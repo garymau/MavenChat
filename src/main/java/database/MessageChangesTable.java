@@ -7,7 +7,7 @@ import java.sql.*;
 
 public class MessageChangesTable {
     public static String getEditedMessages(int messageEditId, Connection connection){
-        String sql = "SELECT * from message_changes WHERE id > " + messageEditId;
+        final String sql = "SELECT * from message_changes WHERE id > " + messageEditId;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -27,7 +27,7 @@ public class MessageChangesTable {
 
 
     public static void addMessageChange(int messageId, String messageText, Connection connection) {
-        String sql = "INSERT INTO message_changes (message_text, message_id, id)" + "VALUES (?, ?, ?)";
+        final String sql = "INSERT INTO message_changes (message_text, message_id, id)" + "VALUES (?, ?, ?)";
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(sql);

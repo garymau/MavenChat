@@ -1,32 +1,43 @@
 package connection;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 
 public class DatabaseConnection {
-    public static Connection setupDBConnection() {
+
+    private static final Logger logger = Logger.getLogger(DatabaseConnection.class.getName());
+
+    public static Connection setupDBConnection() throws IOException {
+        LogManager.getLogManager().readConfiguration(
+                DatabaseConnection.class.getResourceAsStream("/logging.properties")
+        );
         try {
-            Class.forName("org.postgresql.Driver");
+            Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Where is your PostgreSQL JDBC Driver? Include in your library path!");
-            e.printStackTrace();
+            logger.log(Level.INFO,"Where is your MySQL JDBC Driver? Include in your library path!\n"+e.getStackTrace()+"\n");
             return null;
         }
-        System.out.println("PostgreSQL JDBC Driver Registered!");
+        logger.log(Level.INFO, Calendar.getInstance().toString()+"MySQL JDBC Driver Registered!");
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mydb", "postgres", "postgres");
+            connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/mydb", "root", "root");
         } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
+            logger.log(Level.INFO,"Connection Failed! Check output console \n"+e.getStackTrace()+"\n");
             e.printStackTrace();
             return null;
         }
         if (connection != null) {
-            System.out.println("You made it, take control your database now!");
+            logger.log(Level.INFO, "You made it, take control your database now!");
         } else {
-            System.out.println("Failed to make connection!");
+            logger.log(Level.INFO,"Failed to make connection!");
         }
         return connection;
     }

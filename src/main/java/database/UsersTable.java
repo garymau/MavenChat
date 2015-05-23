@@ -8,7 +8,7 @@ import java.sql.*;
 public class UsersTable {
     public static int getUserId(String username, Connection connection){
         try {
-            String sql = "SELECT * FROM users WHERE username=\'" + username + "\'";
+            final String sql = "SELECT * FROM users WHERE username=\'" + username + "\'";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             if(resultSet.isBeforeFirst()){
@@ -24,7 +24,7 @@ public class UsersTable {
 
     public static int addNewUser(String username, Connection connection){
         int id = Util.getRowsNumber("users", connection) + 1;
-        String sql = "INSERT INTO users(username, id) VALUES(?, ?)";
+        final String sql = "INSERT INTO users(username, id) VALUES(?, ?)";
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = connection.prepareStatement(sql);
@@ -39,7 +39,7 @@ public class UsersTable {
 
 
     public static String getUsers(int userId, Connection connection){
-        String sql = "SELECT * from users WHERE id > " + userId;
+        final String sql = "SELECT * from users WHERE id > " + userId;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -61,7 +61,7 @@ public class UsersTable {
 
     public static String getUsernameById(int userId, Connection connection){
         try {
-            String sql = "SELECT * FROM users WHERE id=\'" + userId + "\'";
+            final String sql = "SELECT * FROM users WHERE id=\'" + userId + "\'";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             if(resultSet.isBeforeFirst()){
@@ -76,7 +76,7 @@ public class UsersTable {
 
 
     public static void changeUsernameById(int id, String username, Connection connection) {
-        String sql = "UPDATE users SET username='" + username + "' WHERE id=" + id;
+        final String sql = "UPDATE users SET username='" + username + "' WHERE id=" + id;
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(sql);

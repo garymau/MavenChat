@@ -8,21 +8,39 @@ import org.json.simple.parser.ParseException;
 import requests.BaseRequest;
 import requests.UpdateRequest;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 
 public class Servlet extends HttpServlet {
     protected static Connection connection = null;
+    private static final Logger logger = Logger.getLogger(Servlet.class.getName());
 
-    public Servlet() {
-        connection = DatabaseConnection.setupDBConnection();
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        super.init(servletConfig);
+        try {
+
+            LogManager.getLogManager().readConfiguration(
+                    getClass().getResourceAsStream("/logging.properties")
+            );
+            connection = DatabaseConnection.setupDBConnection();
+        } catch (IOException e) {
+            System.out.println("!!!!!!!Could not setup logging config " + e.toString());
+        }
+
     }
 
     @Override
@@ -47,10 +65,11 @@ public class Servlet extends HttpServlet {
                     UsersTable.changeUsernameById(userId, username, connection);
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO,"ParseException\n" + e.getMessage()+"\n");
+
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.INFO, "IOException\n" + e.getMessage() + "\n");
         }
     }
 
@@ -66,11 +85,16 @@ public class Servlet extends HttpServlet {
             BaseRequest.proceedBaseRequest(request, response, connection);
         }
         else if(type.compareTo("GET_UPDATE")==0) {
-            UpdateRequest.proceedUpdateRequest(request, response, connection);
+            try {
+                UpdateRequest.proceedUpdateRequest(request, response, connection);
+            } catch (TransformerException | ParserConfigurationException e) {
+                logger.log(Level.INFO, "TransformerException\n" + e.getMessage() + "\n");
+            } catch (java.text.ParseException e) {
+                logger.log(Level.INFO, "ParseException\n" + e.getMessage() + "\n");
+            }
         }
         else {
             System.out.println("Unsupported type.");
         }
-        request.getRequestDispatcher("/homepage.jsp").forward(request, response);
     }
 }

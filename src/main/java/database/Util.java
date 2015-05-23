@@ -13,21 +13,29 @@ public class Util {
         try {
             out = response.getWriter();
             out.println(jsonString);
-            out.flush();
-            out.close();
         } catch (IOException e) {
             System.out.println("Sending response error.");
             e.printStackTrace();
+        }
+        finally {
+            if (out!=null){
+                out.flush();
+                out.close();
+            }
         }
     }
 
 
     public static int getRowsNumber(String tableName, Connection connection){
         try {
-            Statement maxId = connection.createStatement();
-            ResultSet resultSet = maxId.executeQuery("SELECT COUNT(*) FROM " + tableName);
-            resultSet.next();
-            return Integer.parseInt(resultSet.getString(1));
+            final String sql = "SELECT COUNT(*) AS maxid FROM ";
+            PreparedStatement maxId = connection.prepareStatement(sql + tableName);
+            ResultSet resultSet = maxId.executeQuery();
+            if (resultSet.next())
+                return resultSet.getInt("maxid");
+            else{
+                System.out.println("there are no rows in \""+tableName+"\" table");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
