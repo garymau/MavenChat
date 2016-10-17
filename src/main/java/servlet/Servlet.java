@@ -2,27 +2,53 @@ package servlet;
 
 import connection.DatabaseConnection;
 import database.*;
+import ext.History;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.xml.sax.SAXException;
 import requests.BaseRequest;
 import requests.UpdateRequest;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 
 
 public class Servlet extends HttpServlet {
-    protected static Connection connection = null;
 
-    public Servlet() {
-        connection = DatabaseConnection.setupDBConnection();
+    protected static volatile Connection connection = loginHandler.connection;
+    private static final Logger logger = LogManager.getLogger(Servlet.class.getName());
+    private static final String historyFilePath = "d:/history.xml";
+    private static final String lineStart = "\n++++++++++++++++++++\n";
+    private static final String lineEnd = "\n--------------------\n";
+
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        super.init(servletConfig);
+        try {
+            File xmlFile = new File(historyFilePath);
+            if (xmlFile.exists()) {
+                History.fromXML(xmlFile);
+            }
+        }
+        catch (ParserConfigurationException | SAXException e) {
+            logger.info(lineStart + "couldn't parse your xml doc, sorry" + e.getStackTrace()+ lineEnd);
+        } catch (IOException e) {
+            logger.info(lineStart + "problem with xml file occured: " + e.getStackTrace() + lineEnd);
+        }
+
     }
 
     @Override
@@ -47,10 +73,10 @@ public class Servlet extends HttpServlet {
                     UsersTable.changeUsernameById(userId, username, connection);
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.info(lineStart + "ParseException" + e.getMessage() + lineEnd);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info(lineStart + "IOException" + e.getMessage() + lineEnd);
         }
     }
 
@@ -66,11 +92,17 @@ public class Servlet extends HttpServlet {
             BaseRequest.proceedBaseRequest(request, response, connection);
         }
         else if(type.compareTo("GET_UPDATE")==0) {
-            UpdateRequest.proceedUpdateRequest(request, response, connection);
+            try {
+                UpdateRequest.proceedUpdateRequest(request, response, connection);
+            } catch (TransformerException | ParserConfigurationException e) {
+                logger.info(lineStart + "TransformerException" + e.getMessage() + lineEnd);
+            } catch (java.text.ParseException e) {
+                logger.info(lineStart + "ParseException" + e.getMessage() + lineEnd);
+            }
         }
         else {
-            System.out.println("Unsupported type.");
+            logger.info(lineStart + "Unsupported type of request!" +
+                    " Expected: 'BASE_REQUEST' or 'GET_UPDATE' " + lineEnd);
         }
-        request.getRequestDispatcher("/homepage.jsp").forward(request, response);
     }
 }

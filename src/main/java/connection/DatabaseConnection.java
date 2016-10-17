@@ -3,30 +3,37 @@ package connection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class DatabaseConnection {
-    public static Connection setupDBConnection() {
+
+    private static final Logger logger = LogManager.getLogger(DatabaseConnection.class.getName());
+    private static final String url = "jdbc:oracle:thin:@localhost:1521:ORADB";
+    private static final String username = "c##mydb";
+    private static final String password = "1234";
+
+    public static Connection setupDBConnection(){
         try {
-            Class.forName("org.postgresql.Driver");
+
+            Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
-            System.out.println("Where is your PostgreSQL JDBC Driver? Include in your library path!");
-            e.printStackTrace();
+            logger.info("Where is your ORACLE JDBC Driver? Include in your library path!\n"+e.getStackTrace()+"\n");
             return null;
         }
-        System.out.println("PostgreSQL JDBC Driver Registered!");
+        logger.info("Oracle JDBC Driver Registered!");
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mydb", "postgres", "postgres");
+            connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
+            logger.info("Connection Failed! Check output console \n"+e.getStackTrace()+"\n");
             e.printStackTrace();
             return null;
         }
         if (connection != null) {
-            System.out.println("You made it, take control your database now!");
+            logger.info("You made it, take control your database now!");
         } else {
-            System.out.println("Failed to make connection!");
+            logger.info("Failed to make connection!");
         }
         return connection;
     }

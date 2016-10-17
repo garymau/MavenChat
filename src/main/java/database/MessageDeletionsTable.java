@@ -13,7 +13,7 @@ import java.sql.*;
 
 public class MessageDeletionsTable {
     public static String getDeletedMessages(int messageDeletedId, Connection connection){
-        String sql = "SELECT * from message_deletions WHERE id > " + messageDeletedId;
+        final String sql = "SELECT * from message_deletions WHERE id > " + messageDeletedId;
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
@@ -36,7 +36,7 @@ public class MessageDeletionsTable {
                 JSONArray jsonArray = (JSONArray)parser.parse(br.readLine());
                 for (Object s: jsonArray){
                     int newId = Util.getRowsNumber("message_deletions", connection) + 1;
-                    String sql = "INSERT INTO message_deletions (id, message_id) VALUES (?, ?)";
+                    final String sql = "INSERT INTO message_deletions (id, message_id) VALUES (?, ?)";
                     PreparedStatement preparedStatement = null;
                     try {
                         preparedStatement = connection.prepareStatement(sql);
@@ -47,7 +47,7 @@ public class MessageDeletionsTable {
                         e.printStackTrace();
                     }
 
-                    String markAsDeleted = "UPDATE messages SET is_deleted='" + 1 + "' WHERE message_id=" + Integer.parseInt((String)s);
+                    final String markAsDeleted = "UPDATE messages SET is_deleted='" + 1 + "' WHERE message_id=" + Integer.parseInt((String)s);
                     Statement statement = null;
                     try {
                         statement = connection.createStatement();

@@ -46,7 +46,7 @@ function showUsernameForm(isChanging) {
             if(!text) {
                 return;
             }
-
+            alert("changing name!");
             changeUsername(text);
         }
     }
@@ -56,7 +56,7 @@ function showUsernameForm(isChanging) {
             if(!text) {
                 return;
             }
-
+            alert("no changing name!");
             enter(text);
         }
     }
