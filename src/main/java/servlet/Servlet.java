@@ -1,5 +1,6 @@
 package servlet;
 
+import connection.ConnectionPool;
 import connection.DatabaseConnection;
 import database.*;
 import ext.History;
@@ -28,7 +29,6 @@ import java.sql.*;
 
 public class Servlet extends HttpServlet {
 
-    protected static volatile Connection connection = loginHandler.connection;
     private static final Logger logger = LogManager.getLogger(Servlet.class.getName());
     private static final String historyFilePath = "d:/history.xml";
     private static final String lineStart = "\n++++++++++++++++++++\n";
@@ -53,7 +53,7 @@ public class Servlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        MessageDeletionsTable.deleteMessage(request, connection);
+        MessageDeletionsTable.deleteMessage(request);
     }
 
     @Override
@@ -65,12 +65,12 @@ public class Servlet extends HttpServlet {
                 JSONObject jsonObject = (JSONObject)parser.parse(br.readLine());
                 type = (String)jsonObject.get("type");
                 if(type.compareTo("CHANGE_MESSAGE")==0)
-                    MessagesTable.changeMessage(request, connection, br);
+                    MessagesTable.changeMessage(request, jsonObject);
                 if(type.compareTo("CHANGE_USERNAME")==0) {
                     int userId = ((Long)((JSONObject)jsonObject.get("user")).get("userId")).intValue();
                     String username = (String)((JSONObject)jsonObject.get("user")).get("username");
-                    UsernameChangesTable.changeUsername(userId, username, connection);
-                    UsersTable.changeUsernameById(userId, username, connection);
+                    UsernameChangesTable.changeUsername(userId, username);
+                    UsersTable.changeUsernameById(userId, username);
                 }
             } catch (ParseException e) {
                 logger.info(lineStart + "ParseException" + e.getMessage() + lineEnd);
@@ -82,18 +82,18 @@ public class Servlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        MessagesTable.addMessage(request, connection);
+        MessagesTable.addMessage(request);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
         if(type.compareTo("BASE_REQUEST")==0) {
-            BaseRequest.proceedBaseRequest(request, response, connection);
+            BaseRequest.proceedBaseRequest(request, response);
         }
         else if(type.compareTo("GET_UPDATE")==0) {
             try {
-                UpdateRequest.proceedUpdateRequest(request, response, connection);
+                UpdateRequest.proceedUpdateRequest(request, response);
             } catch (TransformerException | ParserConfigurationException e) {
                 logger.info(lineStart + "TransformerException" + e.getMessage() + lineEnd);
             } catch (java.text.ParseException e) {

@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 
 public class BaseRequest {
-    public static void proceedBaseRequest(HttpServletRequest request, HttpServletResponse response, Connection connection){
+    public static void proceedBaseRequest(HttpServletRequest request, HttpServletResponse response){
         String username = request.getParameter("username");
-        int id = UsersTable.getUserId(username, connection);
+        int id = UsersTable.getUserId(username);
         if(id == -1)
-            id = UsersTable.addNewUser(username, connection);
+            id = UsersTable.addNewUser(username);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("currentUserId", id);
         jsonObject.put("messageToken", 0);

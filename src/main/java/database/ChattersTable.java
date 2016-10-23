@@ -1,5 +1,7 @@
 package database;
 
+import connection.ConnectionPool;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,8 +12,8 @@ import java.sql.SQLException;
  */
 public class ChattersTable {
 
-    public static void insertChatter(Connection connection, String chatterName, String sessionId) throws SQLException {
-
+    public static void insertChatter(String chatterName, String sessionId) throws SQLException {
+        Connection connection = ConnectionPool.getConnection();
         int number = -1;
         final String selectCountQuery = "SELECT COUNT(*) AS count FROM chatters WHERE chattername=?";
         final String insertQuery = "INSERT INTO chatters (chattername, session_id) VALUES(?, ?)";
@@ -22,7 +24,7 @@ public class ChattersTable {
             number = rs.getInt("count");
         }
         if (number > 0){
-            updateChatter(connection, chatterName, sessionId);
+            updateChatter(chatterName, sessionId);
         }
         else {
             stmt = connection.prepareStatement(insertQuery);
@@ -30,21 +32,26 @@ public class ChattersTable {
             stmt.setString(2, sessionId);
             stmt.executeUpdate();
         }
+        ConnectionPool.closeConnection(connection);
     }
 
-    public static void updateChatter(Connection connection, String chatterName, String sessionId) throws SQLException {
+    public static void updateChatter(String chatterName, String sessionId) throws SQLException {
+        Connection connection = ConnectionPool.getConnection();
         final String updateQuery = "UPDATE chatters SET Session_Id=? WHERE chattername=?";
         PreparedStatement stmt = connection.prepareStatement(updateQuery);
         stmt.setString(1, sessionId);
         stmt.setString(2, chatterName);
         stmt.executeUpdate();
+        ConnectionPool.closeConnection(connection);
     }
 
-    public static void deleteChatter(Connection connection, String chatterName, String sessionId) throws SQLException {
+    public static void deleteChatter(String chatterName, String sessionId) throws SQLException {
+        Connection connection = ConnectionPool.getConnection();
         final String deleteQuery = "DELETE FROM chatters WHERE chattername=? AND session_id=?";
         PreparedStatement stmt = connection.prepareStatement(deleteQuery);
         stmt.setString(1, chatterName);
         stmt.setString(2, sessionId);
         stmt.executeUpdate();
+        ConnectionPool.closeConnection(connection);
     }
 }

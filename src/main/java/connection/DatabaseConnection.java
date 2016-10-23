@@ -15,7 +15,6 @@ public class DatabaseConnection {
 
     public static Connection setupDBConnection(){
         try {
-
             Class.forName("oracle.jdbc.OracleDriver");
         } catch (ClassNotFoundException e) {
             logger.info("Where is your ORACLE JDBC Driver? Include in your library path!\n"+e.getStackTrace()+"\n");

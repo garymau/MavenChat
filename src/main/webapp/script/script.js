@@ -28,6 +28,6 @@ var messageDeleteToken;
 var userToken;
 var userChangeToken;
 
-var host = "http://localhost";
+var host = "http://192.168.1.4";
 var port = ":8081";
 var adr = "/Servlet";

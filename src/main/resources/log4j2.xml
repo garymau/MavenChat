@@ -5,7 +5,7 @@
             <PatternLayout pattern="%d{HH:mm:ss} %-5level %logger{1} %M - %msg%n"/>
         </Console>
 
-        <File name="MyFile" fileName="D:/maven-chat.log">
+        <File name="MyFile" fileName="D:\DIMAN\Documents\CSDS\MavenChat\src\main\log\maven-chat.log">
             <PatternLayout>
                 <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %M - %msg%n</Pattern>
             </PatternLayout>

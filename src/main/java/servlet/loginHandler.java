@@ -1,5 +1,6 @@
 package servlet;
 
+import connection.ConnectionPool;
 import connection.DatabaseConnection;
 import database.ChattersTable;
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +27,8 @@ public class loginHandler extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        connection = DatabaseConnection.setupDBConnection();
+        //connection = DatabaseConnection.setupDBConnection();
+        connection = ConnectionPool.getConnection();
     }
 
     @Override
@@ -36,6 +38,7 @@ public class loginHandler extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        connection = ConnectionPool.getConnection();
         req.setCharacterEncoding("UTF-8");
         if (req.getServletPath().equals("/logout")){
             HttpSession session = req.getSession(false);
@@ -55,9 +58,9 @@ public class loginHandler extends HttpServlet {
                 resp.addCookie(loginCookie);
             }
             try {
-                ChattersTable.deleteChatter(connection, nickName, session.getId());
+                ChattersTable.deleteChatter(nickName, session.getId());
             } catch (SQLException e) {
-                logger.info("problems with deleting from chatters table"+e.getMessage());
+                logger.info("problems with deleting from chatters table" + e.getMessage());
             }
             session.invalidate();
             resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -77,7 +80,7 @@ public class loginHandler extends HttpServlet {
                     userCookie.setMaxAge(60 * 60);
                     resp.addCookie(userCookie);
                     try {
-                        ChattersTable.insertChatter(connection, nickName, session.getId());
+                        ChattersTable.insertChatter(nickName, session.getId());
                     } catch (SQLException e) {
                         logger.info("problems with insert into chatters table" + e.getMessage());
                     }
@@ -86,5 +89,6 @@ public class loginHandler extends HttpServlet {
             }
         else
                 resp.sendRedirect(req.getContextPath() + "/login.jsp");
+        ConnectionPool.closeConnection(connection);
     }
 }

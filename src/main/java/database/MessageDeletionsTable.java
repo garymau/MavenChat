@@ -1,5 +1,6 @@
 package database;
 
+import connection.ConnectionPool;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -12,9 +13,11 @@ import java.sql.*;
 
 
 public class MessageDeletionsTable {
-    public static String getDeletedMessages(int messageDeletedId, Connection connection){
+    public static String getDeletedMessages(int messageDeletedId){
+        Connection connection = null;
         final String sql = "SELECT * from message_deletions WHERE id > " + messageDeletedId;
         try {
+            connection = ConnectionPool.getConnection();
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             JSONArray jsonArray = new JSONArray();
@@ -24,12 +27,14 @@ public class MessageDeletionsTable {
             return jsonArray.toJSONString();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            ConnectionPool.closeConnection(connection);
         }
         return null;
     }
 
-
-    public static void deleteMessage(HttpServletRequest request, Connection connection) {
+    public static void deleteMessage(HttpServletRequest request) {
+        Connection connection = ConnectionPool.getConnection();
         try(BufferedReader br = request.getReader()) {
             JSONParser parser = new JSONParser();
             try {
@@ -46,7 +51,6 @@ public class MessageDeletionsTable {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-
                     final String markAsDeleted = "UPDATE messages SET is_deleted='" + 1 + "' WHERE message_id=" + Integer.parseInt((String)s);
                     Statement statement = null;
                     try {
@@ -63,5 +67,6 @@ public class MessageDeletionsTable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ConnectionPool.closeConnection(connection);
     }
 }
