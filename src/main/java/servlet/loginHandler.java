@@ -62,10 +62,10 @@ public class loginHandler extends HttpServlet {
             } catch (SQLException e) {
                 logger.info("problems with deleting from chatters table" + e.getMessage());
             }
+            // TODO: 26.10.2016 move sqlexceptions into the methods
             session.invalidate();
-            resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-            resp.setDateHeader("Expires", 0); // Proxies.
-            resp.sendRedirect(req.getContextPath() + "/homepage.jsp");
+
+            resp.sendRedirect(req.getContextPath() + "/login.jsp");
         }
         else
             if (req.getServletPath().equals("/login")) {
@@ -84,11 +84,17 @@ public class loginHandler extends HttpServlet {
                     } catch (SQLException e) {
                         logger.info("problems with insert into chatters table" + e.getMessage());
                     }
-                    resp.sendRedirect(req.getContextPath() + "/homepage.jsp");
+                    resp.setHeader("Cache-Control", "private, must-revalidate, max-age=0, no-store, " +
+                            "no-cache, must-revalidate, post-check=0, pre-check=0"); // HTTP 1.1.
+                    resp.setHeader("Pragma", "no-cache"); //HTTP 1.0
+                    resp.setDateHeader("Expires", 0); // Proxies.
+
+                    req.getRequestDispatcher(req.getContextPath() + "/homepage.jsp").forward(req, resp);
+                    //resp.sendRedirect(req.getContextPath() + "/homepage.jsp");
                 }
             }
-        else
-                resp.sendRedirect(req.getContextPath() + "/login.jsp");
+        /*else
+                resp.sendRedirect(req.getContextPath() + "/login.jsp");*/
         ConnectionPool.closeConnection(connection);
     }
 }

@@ -70,7 +70,7 @@ function sendMessage() {
     var body = JSON.stringify(new MessageToPost(text));
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', host + port + adr, true);
+    xhr.open('POST', adr, true);
     xhr.send(body);
     xhr.onreadystatechange = function() {
         if(xhr.status == 200) {

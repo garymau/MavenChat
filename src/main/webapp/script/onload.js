@@ -22,7 +22,7 @@ function doGet() {
         '&userChangeToken=' + userChangeToken;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', host + port + adr + params, true);
+    xhr.open('GET', adr + params, true);
     xhr.send();
     xhr.onreadystatechange = function() {
         if(xhr.status == 200) {

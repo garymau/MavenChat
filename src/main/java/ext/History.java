@@ -114,9 +114,9 @@ public class History {
             public void endElement(String uri, String localName, String qName) throws SAXException {
                 super.endElement(uri, localName, qName);
 
-                if (qName.equalsIgnoreCase("message")){
+                /*if (qName.equalsIgnoreCase("message")){
                     System.out.println("\n***message: "+message.toJSONString()+"***");
-                }
+                }*/
             }
 
             @Override

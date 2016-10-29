@@ -1,12 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<%
-	String nickName = (String)session.getAttribute("nickname");
-	if (nickName==null || nickName.equals("")){
-		response.sendRedirect("/login.jsp");
-	}
-%>
-
 <html>
 <head>
 	<title>Chat</title>
@@ -27,7 +20,7 @@
 	<div id="userdiv"></div>
 	<div id="server">Server is available</div>
 	<div id="exit">Exit</div>
-	<a href="/logout">logout</a>
+	<a href="${pageContext.request.contextPath}/logout">logout</a>
 </div>
 <div id="bottom">
 	<div id="img"></div>

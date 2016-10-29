@@ -1,6 +1,6 @@
 function deleteSelected() {
     var xhr = new XMLHttpRequest();
-    xhr.open('DELETE', host + port + adr, true);
+    xhr.open('DELETE', adr, true);
     xhr.send(JSON.stringify(selectedMessages));
     xhr.onreadystatechange = function() {
         if(xhr.status == 200) {

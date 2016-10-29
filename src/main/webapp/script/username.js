@@ -46,7 +46,6 @@ function showUsernameForm(isChanging) {
             if(!text) {
                 return;
             }
-            alert("changing name!");
             changeUsername(text);
         }
     }
@@ -56,7 +55,6 @@ function showUsernameForm(isChanging) {
             if(!text) {
                 return;
             }
-            alert("no changing name!");
             enter(text);
         }
     }
@@ -65,7 +63,7 @@ function showUsernameForm(isChanging) {
         var params = '?type=BASE_REQUEST&username=' + username;
 
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', host + port + adr + params, true);
+        xhr.open('GET', adr + params, true);
         xhr.send();
         xhr.onreadystatechange = function() {
             if(xhr.status == 200) {
@@ -98,10 +96,10 @@ function showUsernameForm(isChanging) {
         requestBody.user.userId = usernameId;
         requestBody.user.username = username;
 
-        alert('PUT-request:\n' + JSON.stringify(requestBody));
+        //alert('PUT-request:\n' + JSON.stringify(requestBody));
 
         var xhr = new XMLHttpRequest();
-        xhr.open('PUT', host + port + adr, true);
+        xhr.open('PUT', adr, true);
         xhr.send(JSON.stringify(requestBody));
         xhr.onreadystatechange = function() {
             if(xhr.status == 200) {

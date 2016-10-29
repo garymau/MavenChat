@@ -22,5 +22,6 @@ public class BaseRequest {
         jsonObject.put("userToken", 0);
         jsonObject.put("userChangeToken", 0);
         Util.sendResponse(response, jsonObject.toJSONString());
+
     }
 }
