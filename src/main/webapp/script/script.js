@@ -9,6 +9,43 @@ function create(element, className) {
     return el;
 }
 
+
+/*var template = "<div   class='$active'>$userName $time $message</div>"
+
+var htmlNode = run(template, {userName:'ssss', time:'ffff', message:'ssssss'});*/
+
+
+
+
+
+function ajax(type, url, data, onReadyState4, onBadStatus) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(type, url, true);
+    xhr.send(data);
+
+    xhr.onreadystatechange = function() {
+        if(xhr.status == 200) {
+            showServerState(true);
+            if(xhr.readyState == 4) {
+                onReadyState4(xhr.responseText ? JSON.parse(xhr.responseText) : '');
+            }
+        }
+        else {
+            if(onBadStatus)
+                onBadStatus();
+            else
+                showServerState(false);
+        }
+    }
+}
+
+function getCookie(name) {
+    var matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
 var usernameId = '';
 var selectedMessages = [];
 
@@ -28,6 +65,10 @@ var messageDeleteToken;
 var userToken;
 var userChangeToken;
 
-var host = "http://" + location.hostname;
-var port = ":8081";
+var host = "http://localhost";
+var port = ":8080";
 var adr = "/Servlet";
+var address = adr;
+
+var gettingMessages = false;
+var firstUpdateRequest = false;

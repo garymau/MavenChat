@@ -1,16 +1,34 @@
 document.body.onload = function() {
-    showUsernameForm();
+    function enter(username) {
+        function setStartVars(resp) {
+            usernameId = resp.currentUserId;
+            messageToken = resp.messageToken;
+            messageEditToken = resp.messageEditToken;
+            messageDeleteToken = resp.messageDeleteToken;
+            userToken = resp.userToken;
+            userChangeToken = resp.userChangeToken;
+            textarea.focus();
+
+            firstUpdateRequest = true;
+            startGettingMessages();
+        }
+        var params = '?type=BASE_REQUEST&username=' + username;
+        ajax('GET', address + params, null, setStartVars);
+    }
+
+    var name = getCookie('nickname');
+    enter(name);
+
+    //showUsernameForm();
 };
 
 function startGettingMessages() {
-    timer = setTimeout(function func() {
-        doGet();
-        timer = setTimeout(func, 1000);
-    }, 1000);
+    gettingMessages = true;
+    doGet();
 }
 
 function stopGettingMessages() {
-    clearTimeout(timer);
+    gettingMessages = false;
 }
 
 function doGet() {
@@ -21,101 +39,15 @@ function doGet() {
         '&userToken=' + userToken +
         '&userChangeToken=' + userChangeToken;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', adr + params, true);
-    xhr.send();
-    xhr.onreadystatechange = function() {
-        if(xhr.status == 200) {
-            showServerState(true);
-
-            if(xhr.readyState == 4) {
-                var resp = JSON.parse(xhr.responseText);
-
-                if(resp.userToken) {
-                    userToken = resp.userToken;
-                    JSON.parse(resp.users).forEach(function(user) {
-                        users[user.userId] = {
-                            "username":user.username,
-                            "userImage":user.userImage
-                        };
-
-                        if(usernameId == user.userId) {
-                            if(user.username) {
-                                setUsername(user.username);
-                            }
-                            if(user.userImage) {
-                                get('img').style.backgroundImage = 'url(' + user.userImage + ')';
-                            }
-                        }
-                    });
-
-
-                }
-
-                if(resp.userChangeToken) {
-                    userChangeToken = resp.userChangeToken;
-                    JSON.parse(resp.changedUsers).forEach(function(user) {
-                        users[user.userId] = {
-                            "username":user.username,
-                            "userImage":user.userImage
-                        };
-                        if(usernameId == user.userId) {
-                            if(user.username) {
-                                setUsername(user.username);
-                            }
-                            if(user.userImage) {
-                                get('img').style.backgroundImage = 'url(' + user.userImage + ')';
-                            }
-                        }
-                    });
-                }
-
-                if(resp.messageToken) {
-                    messageToken = resp.messageToken;
-                    JSON.parse(resp.messages).forEach(function(message) {
-                        drawMessage(message);
-                    });
-                }
-
-                if(resp.messageEditToken) {
-                    messageEditToken = resp.messageEditToken;
-                    JSON.parse(resp.editedMessages).forEach(function(editing) {
-                        setMessageText(editing.messageId, editing.messageText);
-                    });
-                }
-
-                if(resp.messageDeleteToken) {
-                    messageDeleteToken = resp.messageDeleteToken;
-                    JSON.parse(resp.deletedMessagesIds).forEach(function(id) {
-                        makeMessageDeleted(id);
-                    });
-                }
-
-
-
-                if(resp.userChangeToken) {
-                    userChangeToken = resp.userChangeToken;
-                    JSON.parse(resp.changedUsers).forEach(function(user) {
-                        users[user.userId] = {
-                            "username":user.username,
-                            "userImage":user.userImage
-                        };
-                        if(usernameId == user.userId) {
-                            if(user.username) {
-                                setUsername(user.username);
-                            }
-                            if(user.userImage) {
-
-                            }
-                        }
-                    });
-                }
-            }
-        }
-        else {
-            showServerState(false);
-        }
+    if(firstUpdateRequest){
+        params += '&firstUpdateRequest=true';
+        firstUpdateRequest = false;
     }
+    else{
+        params += '&firstUpdateRequest=false';
+    }
+
+    ajax('GET', address + params, null, updateMsgs);
 }
 
 function setMessageText(messageId, text) {
@@ -132,5 +64,92 @@ function drawMessage(message) {
 function clearMessageContainer() {
     while(messages.firstElementChild != emptyDiv) {
         messages.removeChild(messages.firstElementChild);
+    }
+}
+
+function updateMsgs(resp) {
+    if(resp.userToken) {
+        userToken = resp.userToken;
+        JSON.parse(resp.users).forEach(function(user) {
+            users[user.userId] = {
+                "username":user.username,
+                "userImage":user.userImage
+            };
+
+            if(usernameId == user.userId) {
+                if(user.username) {
+                    setUsername(user.username);
+                }
+                if(user.userImage) {
+                    get('img').style.backgroundImage = 'url(' + user.userImage + ')';
+                }
+            }
+        });
+    }
+
+    if(resp.userChangeToken) {
+        userChangeToken = resp.userChangeToken;
+        JSON.parse(resp.changedUsers).forEach(function(user) {
+            users[user.userId] = {
+                "username":user.username,
+                "userImage":user.userImage
+            };
+            if(usernameId == user.userId) {
+                if(user.username) {
+                    setUsername(user.username);
+                }
+                if(user.userImage) {
+                    get('img').style.backgroundImage = 'url(' + user.userImage + ')';
+                    var divs = document.querySelectorAll('[usernameId="' + user.userId + '"]');
+                    divs.forEach = [].forEach;
+                    divs.forEach(function(div) {
+                        div.style.backgroundImage = 'url(' + user.userImage + ')';
+                    });
+                }
+            }
+        });
+    }
+
+    if(resp.messageToken) {
+        messageToken = resp.messageToken;
+        JSON.parse(resp.messages).forEach(function(message) {
+            drawMessage(message);
+        });
+    }
+
+    if(resp.messageEditToken) {
+        messageEditToken = resp.messageEditToken;
+        JSON.parse(resp.editedMessages).forEach(function(editing) {
+            setMessageText(editing.messageId, editing.messageText);
+        });
+    }
+
+    if(resp.messageDeleteToken) {
+        messageDeleteToken = resp.messageDeleteToken;
+        JSON.parse(resp.deletedMessagesIds).forEach(function(id) {
+            makeMessageDeleted(id);
+        });
+    }
+
+    if(resp.userChangeToken) {
+        userChangeToken = resp.userChangeToken;
+        JSON.parse(resp.changedUsers).forEach(function(user) {
+            users[user.userId] = {
+                "username":user.username,
+                "userImage":user.userImage
+            };
+            if(usernameId == user.userId) {
+                if(user.username) {
+                    setUsername(user.username);
+                }
+                if(user.userImage) {
+
+                }
+            }
+        });
+    }
+
+    if(gettingMessages){
+        setTimeout(doGet, 0);
     }
 }

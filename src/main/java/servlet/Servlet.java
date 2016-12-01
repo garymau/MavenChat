@@ -58,7 +58,7 @@ public class Servlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        String type = null;
+        String type;
         try(BufferedReader br = request.getReader()){
             JSONParser parser = new JSONParser();
             try {
@@ -88,6 +88,7 @@ public class Servlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter("type");
+
         if(type.compareTo("BASE_REQUEST")==0) {
             BaseRequest.proceedBaseRequest(request, response);
         }

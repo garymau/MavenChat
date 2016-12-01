@@ -19,8 +19,8 @@
 <div id="head">
 	<div id="userdiv"></div>
 	<div id="server">Server is available</div>
-	<div id="exit">Exit</div>
-	<a href="${pageContext.request.contextPath}/logout">logout</a>
+	<div id="exit"><a class="btn btn-info" role="button" href="${pageContext.request.contextPath}/logout">Exit</a></div>
+
 </div>
 <div id="bottom">
 	<div id="img"></div>
